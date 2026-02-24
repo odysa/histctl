@@ -10,8 +10,6 @@ import (
 )
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmds []tea.Cmd
-
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -60,8 +58,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.state == stateLoading {
 			var cmd tea.Cmd
 			m.spinner, cmd = m.spinner.Update(msg)
-			cmds = append(cmds, cmd)
+			return m, cmd
 		}
+		return m, nil
 
 	case tea.MouseMsg:
 		if msg.Action == tea.MouseActionPress && msg.Button == tea.MouseButtonLeft {
@@ -93,7 +92,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	return m, tea.Batch(cmds...)
+	return m, nil
 }
 
 func (m Model) updateViewing(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
@@ -186,8 +185,6 @@ func (m Model) updateConfirmDelete(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	}
 }
 
-// Helpers
-
 func (m Model) enterSearchMode() (tea.Model, tea.Cmd) {
 	m.state = stateSearching
 	m.searchInput.SetValue(m.searchText)
@@ -195,16 +192,12 @@ func (m Model) enterSearchMode() (tea.Model, tea.Cmd) {
 	return m, m.searchInput.Cursor.BlinkCmd()
 }
 
-func (m *Model) selectAll() {
-	for i := range m.filteredEntries {
-		m.selected[i] = true
-	}
-}
-
 func (m *Model) toggleSelectAll() {
 	if len(m.selected) == len(m.filteredEntries) {
 		m.selected = make(map[int]bool)
 	} else {
-		m.selectAll()
+		for i := range m.filteredEntries {
+			m.selected[i] = true
+		}
 	}
 }
