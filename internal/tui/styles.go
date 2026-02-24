@@ -81,6 +81,14 @@ var (
 	ErrorStyle = lipgloss.NewStyle().
 			Foreground(Danger).
 			Bold(true)
+
+	// Dialog
+	DialogStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(Danger).
+			Padding(1, 3).
+			Background(lipgloss.Color("#1A1A2E")).
+			Foreground(lipgloss.Color("#FAFAFA"))
 )
 
 // BrowserColor returns the color for a browser name.

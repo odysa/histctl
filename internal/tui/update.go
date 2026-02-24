@@ -75,6 +75,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m.enterSearchMode()
 			}
 		}
+		if m.state == stateViewing {
+			var cmd tea.Cmd
+			m.table, cmd = m.table.Update(msg)
+			return m, cmd
+		}
 		return m, nil
 
 	case tea.KeyMsg:
@@ -117,14 +122,6 @@ func (m Model) updateViewing(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case key.Matches(msg, m.keys.All):
 		m.toggleSelectAll()
 		m.updateTableRows()
-		return m, nil
-
-	case key.Matches(msg, m.keys.DeleteAll):
-		if len(m.filteredEntries) > 0 {
-			m.selectAll()
-			m.updateTableRows()
-			m.state = stateConfirmDelete
-		}
 		return m, nil
 
 	case key.Matches(msg, m.keys.Delete):

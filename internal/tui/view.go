@@ -21,12 +21,6 @@ func (m Model) View() string {
 		sections = append(sections, fmt.Sprintf("\n  %s Loading history...\n", m.spinner.View()))
 	} else if m.state == stateConfirmDelete {
 		sections = append(sections, m.table.View())
-		confirm := lipgloss.NewStyle().
-			Bold(true).
-			Foreground(Danger).
-			MarginTop(1).
-			Render(fmt.Sprintf("  Delete %d entries? (y/N)", len(m.selected)))
-		sections = append(sections, confirm)
 	} else {
 		sections = append(sections, m.table.View())
 	}
@@ -39,7 +33,13 @@ func (m Model) View() string {
 		sections = append(sections, m.renderShortHelp())
 	}
 
-	return lipgloss.JoinVertical(lipgloss.Left, sections...)
+	content := lipgloss.JoinVertical(lipgloss.Left, sections...)
+
+	if m.state == stateConfirmDelete {
+		content = m.overlayDialog(content)
+	}
+
+	return content
 }
 
 func (m Model) renderHeader() string {
@@ -159,6 +159,87 @@ func (m Model) renderStatusBar() string {
 	}
 
 	return StatusBarStyle.Render("  " + strings.Join(parts, " "))
+}
+
+func (m Model) overlayDialog(bg string) string {
+	// Build the dialog box
+	title := lipgloss.NewStyle().Bold(true).Foreground(Danger).
+		Render(fmt.Sprintf("Delete %d entries?", len(m.selected)))
+	hint := lipgloss.NewStyle().Foreground(Subtle).
+		Render("y to confirm · any key to cancel")
+	dialog := DialogStyle.Render(lipgloss.JoinVertical(lipgloss.Center, title, "", hint))
+
+	// Dim background lines
+	dimStyle := lipgloss.NewStyle().Foreground(Muted)
+	bgLines := strings.Split(bg, "\n")
+	for i, line := range bgLines {
+		bgLines[i] = dimStyle.Render(line)
+	}
+
+	// Pad background to fill terminal height
+	for len(bgLines) < m.height {
+		bgLines = append(bgLines, "")
+	}
+
+	// Overlay dialog centered on the background
+	dialogLines := strings.Split(dialog, "\n")
+	dH := len(dialogLines)
+	dW := lipgloss.Width(dialog)
+	startRow := (m.height - dH) / 2
+	startCol := (m.width - dW) / 2
+	if startCol < 0 {
+		startCol = 0
+	}
+
+	for i, dLine := range dialogLines {
+		row := startRow + i
+		if row < 0 || row >= len(bgLines) {
+			continue
+		}
+		bgLine := bgLines[row]
+		// Pad the background line to startCol with spaces
+		bgW := lipgloss.Width(bgLine)
+		if bgW < startCol {
+			bgLine += strings.Repeat(" ", startCol-bgW)
+		}
+		// Build: left side of bg + dialog line + right side of bg
+		left := ansiTruncate(bgLine, startCol)
+		bgLines[row] = left + dLine
+	}
+
+	return strings.Join(bgLines[:m.height], "\n")
+}
+
+// ansiTruncate truncates a string to n visible characters, preserving ANSI codes.
+func ansiTruncate(s string, n int) string {
+	var result strings.Builder
+	visible := 0
+	inEsc := false
+	for _, r := range s {
+		if inEsc {
+			result.WriteRune(r)
+			if (r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') {
+				inEsc = false
+			}
+			continue
+		}
+		if r == '\x1b' {
+			inEsc = true
+			result.WriteRune(r)
+			continue
+		}
+		if visible >= n {
+			break
+		}
+		result.WriteRune(r)
+		visible++
+	}
+	// Pad if background was shorter than needed
+	for visible < n {
+		result.WriteByte(' ')
+		visible++
+	}
+	return result.String()
 }
 
 func (m Model) renderShortHelp() string {

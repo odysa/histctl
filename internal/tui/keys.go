@@ -3,13 +3,12 @@ package tui
 import "github.com/charmbracelet/bubbles/key"
 
 type KeyMap struct {
-	Up        key.Binding
-	Down      key.Binding
-	Select    key.Binding
-	All       key.Binding
-	Delete    key.Binding
-	DeleteAll key.Binding
-	Search    key.Binding
+	Up     key.Binding
+	Down   key.Binding
+	Select key.Binding
+	All    key.Binding
+	Delete key.Binding
+	Search key.Binding
 	Tab       key.Binding
 	Apply     key.Binding
 	Cancel    key.Binding
@@ -23,8 +22,7 @@ func DefaultKeyMap() KeyMap {
 		Down:      key.NewBinding(key.WithKeys("down", "j"), key.WithHelp("↓/j", "down")),
 		Select:    key.NewBinding(key.WithKeys(" "), key.WithHelp("space", "select")),
 		All:       key.NewBinding(key.WithKeys("a"), key.WithHelp("a", "select all")),
-		Delete:    key.NewBinding(key.WithKeys("d"), key.WithHelp("d", "delete")),
-		DeleteAll: key.NewBinding(key.WithKeys("D"), key.WithHelp("D", "delete all")),
+		Delete: key.NewBinding(key.WithKeys("d"), key.WithHelp("d", "delete")),
 		Search:    key.NewBinding(key.WithKeys("/"), key.WithHelp("/", "search")),
 		Tab:       key.NewBinding(key.WithKeys("tab"), key.WithHelp("tab", "browser")),
 		Apply:     key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "apply")),
@@ -35,13 +33,13 @@ func DefaultKeyMap() KeyMap {
 }
 
 func (k KeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.Search, k.Select, k.Delete, k.DeleteAll, k.Tab, k.Help, k.Quit}
+	return []key.Binding{k.Search, k.Select, k.All, k.Delete, k.Tab, k.Help, k.Quit}
 }
 
 func (k KeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Up, k.Down, k.Select, k.All},
-		{k.Search, k.Delete, k.DeleteAll, k.Tab},
+		{k.Search, k.Delete, k.Tab},
 		{k.Help, k.Quit},
 	}
 }
