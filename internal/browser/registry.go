@@ -2,8 +2,6 @@ package browser
 
 import "fmt"
 
-// knownBrowsers is defined in registry_darwin.go and registry_other.go
-
 var constructors = map[string]func() Browser{
 	"chrome":  func() Browser { return NewChrome("") },
 	"edge":    func() Browser { return NewEdge("") },

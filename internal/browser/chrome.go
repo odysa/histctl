@@ -9,8 +9,6 @@ import (
 	"regexp"
 )
 
-// chromeDBSubPath and chromeProcessName are defined in chrome_{darwin,linux,windows}.go
-
 type Chrome struct {
 	name        string
 	processName string

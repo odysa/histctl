@@ -1,7 +1,5 @@
 package browser
 
-// edgeDBSubPath and edgeProcessName are defined in edge_{darwin,linux,windows}.go
-
 type Edge struct {
 	*Chrome
 }

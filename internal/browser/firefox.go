@@ -17,8 +17,6 @@ func NewFirefox(dbOverride string) *Firefox {
 	return &Firefox{dbOverride: dbOverride}
 }
 
-// firefoxProfileBase and firefoxProcessName are defined in firefox_{darwin,linux,windows}.go
-
 func (f *Firefox) Name() string       { return "firefox" }
 func (f *Firefox) ProcessName() string { return firefoxProcessName }
 
