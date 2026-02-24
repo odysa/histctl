@@ -20,77 +20,87 @@ Show
 Type "histctl"
 Sleep 300ms
 Enter
-Sleep 800ms
+Sleep 1s
 
-# ── Navigate down ────────────────────────────────────────────────────
+# ── Navigate down (shows cursor position in status bar) ─────────────
 Down
-Sleep 150ms
+Sleep 200ms
 Down
-Sleep 150ms
+Sleep 200ms
 Down
-Sleep 150ms
+Sleep 200ms
 Down
-Sleep 150ms
+Sleep 200ms
 Down
-Sleep 150ms
+Sleep 200ms
 Down
-Sleep 500ms
+Sleep 600ms
 
-# ── Switch browser tabs ─────────────────────────────────────────────
+# ── Switch browser tabs (shows entry counts) ────────────────────────
 Tab
-Sleep 600ms
+Sleep 700ms
 Tab
-Sleep 600ms
+Sleep 700ms
 Tab
-Sleep 600ms
+Sleep 700ms
 Tab
-Sleep 800ms
+Sleep 900ms
 
-# ── Search ───────────────────────────────────────────────────────────
+# ── Search with no results (shows empty state) ─────────────────────
 Type "/"
 Sleep 300ms
+Type "nonexistent"
+Sleep 500ms
+Enter
+Sleep 1.2s
+
+# ── Clear search and search for github ──────────────────────────────
+Type "/"
+Sleep 200ms
+Ctrl+U
+Sleep 200ms
 Type "github"
 Sleep 500ms
 Enter
 Sleep 1s
 
-# ── Select entries ───────────────────────────────────────────────────
+# ── Select entries (shows > prefix on URL) ──────────────────────────
 Space
 Sleep 300ms
 Space
 Sleep 300ms
 Space
-Sleep 500ms
+Sleep 600ms
 
-# ── Select all ───────────────────────────────────────────────────────
+# ── Select all ──────────────────────────────────────────────────────
 Type "a"
 Sleep 800ms
 
-# ── Delete confirmation popup ────────────────────────────────────────
+# ── Delete confirmation popup ───────────────────────────────────────
 Type "d"
 Sleep 1.2s
 
-# ── Cancel delete ────────────────────────────────────────────────────
+# ── Cancel delete ───────────────────────────────────────────────────
 Escape
 Sleep 800ms
 
-# ── Deselect all ─────────────────────────────────────────────────────
+# ── Deselect all ────────────────────────────────────────────────────
 Type "a"
 Sleep 500ms
 
-# ── Clear search ─────────────────────────────────────────────────────
+# ── Clear search ────────────────────────────────────────────────────
 Type "/"
 Sleep 200ms
 Ctrl+U
 Enter
 Sleep 800ms
 
-# ── Show full help ───────────────────────────────────────────────────
+# ── Show full help ──────────────────────────────────────────────────
 Type "?"
 Sleep 1s
 Type "?"
 Sleep 500ms
 
-# ── Quit ─────────────────────────────────────────────────────────────
+# ── Quit ────────────────────────────────────────────────────────────
 Type "q"
 Sleep 300ms
