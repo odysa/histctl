@@ -79,8 +79,8 @@ func TestEdgeName(t *testing.T) {
 	if e.Name() != "edge" {
 		t.Errorf("Edge.Name() = %q, want %q", e.Name(), "edge")
 	}
-	if e.ProcessName() != "Microsoft Edge" {
-		t.Errorf("Edge.ProcessName() = %q, want %q", e.ProcessName(), "Microsoft Edge")
+	if e.ProcessName() != edgeProcessName {
+		t.Errorf("Edge.ProcessName() = %q, want %q", e.ProcessName(), edgeProcessName)
 	}
 }
 

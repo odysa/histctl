@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Test
+        run: go test -race ./...
+
+      - name: Build binaries
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          LDFLAGS="-s -w -X github.com/odysa/histctl/cmd.Version=${VERSION}"
+
+          CGO_ENABLED=0 GOOS=darwin  GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o histctl-darwin-arm64 .
+          CGO_ENABLED=0 GOOS=darwin  GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o histctl-darwin-amd64 .
+          CGO_ENABLED=0 GOOS=linux   GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o histctl-linux-amd64 .
+          CGO_ENABLED=0 GOOS=linux   GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o histctl-linux-arm64 .
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o histctl-windows-amd64.exe .
+          CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o histctl-windows-arm64.exe .
+
+          sha256sum histctl-* > checksums.txt
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            histctl-darwin-arm64
+            histctl-darwin-amd64
+            histctl-linux-amd64
+            histctl-linux-arm64
+            histctl-windows-amd64.exe
+            histctl-windows-arm64.exe
+            checksums.txt

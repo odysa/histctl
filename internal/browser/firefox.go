@@ -18,7 +18,7 @@ func NewFirefox(dbOverride string) *Firefox {
 }
 
 func (f *Firefox) Name() string       { return "firefox" }
-func (f *Firefox) ProcessName() string { return "firefox" }
+func (f *Firefox) ProcessName() string { return firefoxProcessName }
 
 func (f *Firefox) DBPath() (string, error) {
 	if f.dbOverride != "" {
@@ -28,7 +28,7 @@ func (f *Firefox) DBPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	profilesDir := filepath.Join(home, "Library", "Application Support", "Firefox", "Profiles")
+	profilesDir := filepath.Join(home, firefoxProfileBase)
 	matches, err := filepath.Glob(filepath.Join(profilesDir, "*.default-release"))
 	if err != nil {
 		return "", err

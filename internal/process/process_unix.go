@@ -1,3 +1,5 @@
+//go:build darwin || linux
+
 package process
 
 import (
@@ -6,9 +8,9 @@ import (
 	"strings"
 )
 
-// IsRunning checks whether a process with the given name is running on macOS.
+// IsRunning checks whether a process with the given name is running.
 func IsRunning(processName string) (bool, error) {
-	cmd := exec.Command("pgrep", "-xi", processName)
+	cmd := exec.Command("pgrep", "-x", processName)
 	output, err := cmd.Output()
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {

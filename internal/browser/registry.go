@@ -2,10 +2,7 @@ package browser
 
 import "fmt"
 
-var knownBrowsers = []string{"safari", "chrome", "edge", "firefox"}
-
 var constructors = map[string]func() Browser{
-	"safari":  func() Browser { return NewSafari("") },
 	"chrome":  func() Browser { return NewChrome("") },
 	"edge":    func() Browser { return NewEdge("") },
 	"firefox": func() Browser { return NewFirefox("") },
