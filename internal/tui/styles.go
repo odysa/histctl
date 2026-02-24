@@ -3,7 +3,6 @@ package tui
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	// Browser colors
 	SafariColor  = lipgloss.Color("#0A84FF")
 	ChromeColor  = lipgloss.Color("#FF5F00")
 	EdgeColor    = lipgloss.Color("#0078D4")
@@ -14,15 +13,14 @@ var (
 	Danger  = lipgloss.Color("#FF4D4F")
 	Success = lipgloss.Color("#52C41A")
 	Muted   = lipgloss.Color("#4A4A4A")
+	DimBg   = lipgloss.Color("#2D2B55")
 
-	// Header
 	TitleStyle = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color("#FAFAFA")).
 			Background(Accent).
 			Padding(0, 1)
 
-	// Browser pills
 	BrowserPillBase = lipgloss.NewStyle().
 			Padding(0, 1).
 			MarginRight(1).
@@ -39,7 +37,6 @@ var (
 			Foreground(color)
 	}
 
-	// Search bar
 	SearchBarStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(Accent).
@@ -57,16 +54,13 @@ var (
 	SearchPromptStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#FF79C6"))
 
-	// Status bar
 	StatusBarStyle = lipgloss.NewStyle().
-			Foreground(Subtle).
-			MarginTop(1)
+			Foreground(Subtle)
 
 	SelectedCountStyle = lipgloss.NewStyle().
 				Foreground(Danger).
 				Bold(true)
 
-	// Help
 	HelpKeyStyle = lipgloss.NewStyle().
 			Foreground(Accent).
 			Bold(true)
@@ -77,21 +71,18 @@ var (
 	HelpSepStyle = lipgloss.NewStyle().
 			Foreground(Muted)
 
-	// Error
 	ErrorStyle = lipgloss.NewStyle().
 			Foreground(Danger).
 			Bold(true)
 
-	// Dialog
 	DialogStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
+			Border(lipgloss.DoubleBorder()).
 			BorderForeground(Danger).
-			Padding(1, 3).
+			Padding(1, 4).
 			Background(lipgloss.Color("#1A1A2E")).
 			Foreground(lipgloss.Color("#FAFAFA"))
 )
 
-// BrowserColor returns the color for a browser name.
 func BrowserColor(name string) lipgloss.Color {
 	switch name {
 	case "safari":

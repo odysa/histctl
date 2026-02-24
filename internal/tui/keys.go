@@ -9,26 +9,26 @@ type KeyMap struct {
 	All    key.Binding
 	Delete key.Binding
 	Search key.Binding
-	Tab       key.Binding
-	Apply     key.Binding
-	Cancel    key.Binding
-	Help      key.Binding
-	Quit      key.Binding
+	Tab    key.Binding
+	Apply  key.Binding
+	Cancel key.Binding
+	Help   key.Binding
+	Quit   key.Binding
 }
 
 func DefaultKeyMap() KeyMap {
 	return KeyMap{
-		Up:        key.NewBinding(key.WithKeys("up", "k"), key.WithHelp("↑/k", "up")),
-		Down:      key.NewBinding(key.WithKeys("down", "j"), key.WithHelp("↓/j", "down")),
-		Select:    key.NewBinding(key.WithKeys(" "), key.WithHelp("space", "select")),
-		All:       key.NewBinding(key.WithKeys("a"), key.WithHelp("a", "select all")),
+		Up:     key.NewBinding(key.WithKeys("up", "k"), key.WithHelp("↑/k", "up")),
+		Down:   key.NewBinding(key.WithKeys("down", "j"), key.WithHelp("↓/j", "down")),
+		Select: key.NewBinding(key.WithKeys(" "), key.WithHelp("space", "select")),
+		All:    key.NewBinding(key.WithKeys("a"), key.WithHelp("a", "select all")),
 		Delete: key.NewBinding(key.WithKeys("d"), key.WithHelp("d", "delete")),
-		Search:    key.NewBinding(key.WithKeys("/"), key.WithHelp("/", "search")),
-		Tab:       key.NewBinding(key.WithKeys("tab"), key.WithHelp("tab", "browser")),
-		Apply:     key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "apply")),
-		Cancel:    key.NewBinding(key.WithKeys("esc"), key.WithHelp("esc", "cancel")),
-		Help:      key.NewBinding(key.WithKeys("?"), key.WithHelp("?", "help")),
-		Quit:      key.NewBinding(key.WithKeys("q", "ctrl+c"), key.WithHelp("q", "quit")),
+		Search: key.NewBinding(key.WithKeys("/"), key.WithHelp("/", "search")),
+		Tab:    key.NewBinding(key.WithKeys("tab"), key.WithHelp("tab", "browser")),
+		Apply:  key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "apply")),
+		Cancel: key.NewBinding(key.WithKeys("esc"), key.WithHelp("esc", "cancel")),
+		Help:   key.NewBinding(key.WithKeys("?"), key.WithHelp("?", "help")),
+		Quit:   key.NewBinding(key.WithKeys("q", "ctrl+c"), key.WithHelp("q", "quit")),
 	}
 }
 

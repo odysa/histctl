@@ -18,9 +18,20 @@ func (m Model) View() string {
 	sections = append(sections, m.renderSearchBar())
 
 	if m.state == stateLoading {
-		sections = append(sections, fmt.Sprintf("\n  %s Loading history...\n", m.spinner.View()))
-	} else if m.state == stateConfirmDelete {
-		sections = append(sections, m.table.View())
+		loadingText := lipgloss.NewStyle().Foreground(Accent).Italic(true).Render("Loading history...")
+		sections = append(sections, fmt.Sprintf("\n  %s %s\n", m.spinner.View(), loadingText))
+	} else if len(m.filteredEntries) == 0 {
+		emptyMsg := "No history entries"
+		if m.searchText != "" {
+			emptyMsg = fmt.Sprintf("No results for \"%s\"", m.searchText)
+		}
+		sections = append(sections, lipgloss.NewStyle().
+			Foreground(Subtle).
+			Italic(true).
+			Width(m.width).
+			Align(lipgloss.Center).
+			Padding(3, 0).
+			Render(emptyMsg))
 	} else {
 		sections = append(sections, m.table.View())
 	}
@@ -42,8 +53,12 @@ func (m Model) View() string {
 	return content
 }
 
+func (m Model) renderTitle() string {
+	return TitleStyle.Render(" histctl ")
+}
+
 func (m Model) renderHeader() string {
-	title := TitleStyle.Render(" histctl ")
+	title := m.renderTitle()
 
 	pills := make([]string, len(m.browserNames))
 	for i := range m.browserNames {
@@ -56,11 +71,14 @@ func (m Model) renderHeader() string {
 		gap = 1
 	}
 
-	return lipgloss.JoinHorizontal(lipgloss.Top,
+	header := lipgloss.JoinHorizontal(lipgloss.Top,
 		title,
 		strings.Repeat(" ", gap),
 		right,
 	)
+
+	divider := lipgloss.NewStyle().Foreground(Muted).Render(strings.Repeat("─", m.width))
+	return header + "\n" + divider
 }
 
 func (m Model) renderPill(index int) string {
@@ -69,19 +87,20 @@ func (m Model) renderPill(index int) string {
 	if name == "all" {
 		color = Accent
 	}
+	count := m.browserCount(name)
+	label := fmt.Sprintf("%s %d", name, count)
 	if index == m.activeBrowser {
-		return BrowserPillActive(color).Render(name)
+		return BrowserPillActive(color).Render(label)
 	}
-	return BrowserPillInactive(color).Render(name)
+	return BrowserPillInactive(color).Render(label)
 }
 
-// browserPillAt returns the browser index at the given screen position, or -1.
 func (m Model) browserPillAt(x, y int) int {
 	if y != 0 {
 		return -1
 	}
 
-	titleW := lipgloss.Width(TitleStyle.Render(" histctl "))
+	titleW := lipgloss.Width(m.renderTitle())
 	var totalPillW int
 	pillWidths := make([]int, len(m.browserNames))
 	for i := range m.browserNames {
@@ -135,53 +154,65 @@ func (m Model) renderSearchBar() string {
 }
 
 func (m Model) renderStatusBar() string {
+	dot := lipgloss.NewStyle().Foreground(Muted).Render(" · ")
 	var parts []string
 
-	parts = append(parts, lipgloss.NewStyle().Foreground(Subtle).Render(
-		fmt.Sprintf("%d entries", len(m.filteredEntries))))
-
-	if len(m.allEntries) != len(m.filteredEntries) {
-		parts = append(parts, lipgloss.NewStyle().Foreground(Subtle).Render(
-			fmt.Sprintf("of %d", len(m.allEntries))))
+	if len(m.filteredEntries) > 0 {
+		cursor := m.table.Cursor() + 1
+		parts = append(parts, lipgloss.NewStyle().Foreground(Accent).Bold(true).Render(
+			fmt.Sprintf("%d/%d", cursor, len(m.filteredEntries))))
 	}
+
+	entryText := fmt.Sprintf("%d entries", len(m.filteredEntries))
+	if len(m.allEntries) != len(m.filteredEntries) {
+		entryText += fmt.Sprintf(" of %d", len(m.allEntries))
+	}
+	parts = append(parts, lipgloss.NewStyle().Foreground(Subtle).Render(entryText))
 
 	if len(m.selected) > 0 {
 		parts = append(parts, SelectedCountStyle.Render(
-			fmt.Sprintf("│ %d selected", len(m.selected))))
+			fmt.Sprintf("%d selected", len(m.selected))))
 	}
 
 	if m.statusMsg != "" {
-		parts = append(parts, "│", m.statusMsg)
+		parts = append(parts, m.statusMsg)
 	}
 
 	if m.err != nil {
-		parts = append(parts, "│", ErrorStyle.Render(m.err.Error()))
+		parts = append(parts, ErrorStyle.Render(m.err.Error()))
 	}
 
-	return StatusBarStyle.Render("  " + strings.Join(parts, " "))
+	divider := lipgloss.NewStyle().Foreground(Muted).Render(strings.Repeat("─", m.width))
+	return divider + "\n" + StatusBarStyle.Render("  "+strings.Join(parts, dot))
 }
 
 func (m Model) overlayDialog(bg string) string {
-	// Build the dialog box
 	title := lipgloss.NewStyle().Bold(true).Foreground(Danger).
 		Render(fmt.Sprintf("Delete %d entries?", len(m.selected)))
-	hint := lipgloss.NewStyle().Foreground(Subtle).
-		Render("y to confirm · any key to cancel")
+
+	keyStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#FAFAFA")).
+		Background(lipgloss.Color("#3D3D5C")).
+		Padding(0, 1)
+	descStyle := lipgloss.NewStyle().Foreground(Subtle)
+	sep := lipgloss.NewStyle().Foreground(Muted).Render("    ")
+	hint := keyStyle.Render("y") + " " + descStyle.Render("confirm") +
+		sep +
+		keyStyle.Render("esc") + " " + descStyle.Render("cancel")
+
 	dialog := DialogStyle.Render(lipgloss.JoinVertical(lipgloss.Center, title, "", hint))
 
-	// Dim background lines
 	dimStyle := lipgloss.NewStyle().Foreground(Muted)
 	bgLines := strings.Split(bg, "\n")
 	for i, line := range bgLines {
 		bgLines[i] = dimStyle.Render(line)
 	}
 
-	// Pad background to fill terminal height
 	for len(bgLines) < m.height {
 		bgLines = append(bgLines, "")
 	}
 
-	// Overlay dialog centered on the background
 	dialogLines := strings.Split(dialog, "\n")
 	dH := len(dialogLines)
 	dW := lipgloss.Width(dialog)
@@ -197,12 +228,10 @@ func (m Model) overlayDialog(bg string) string {
 			continue
 		}
 		bgLine := bgLines[row]
-		// Pad the background line to startCol with spaces
 		bgW := lipgloss.Width(bgLine)
 		if bgW < startCol {
 			bgLine += strings.Repeat(" ", startCol-bgW)
 		}
-		// Build: left side of bg + dialog line + right side of bg
 		left := ansiTruncate(bgLine, startCol)
 		bgLines[row] = left + dLine
 	}
@@ -210,7 +239,6 @@ func (m Model) overlayDialog(bg string) string {
 	return strings.Join(bgLines[:m.height], "\n")
 }
 
-// ansiTruncate truncates a string to n visible characters, preserving ANSI codes.
 func ansiTruncate(s string, n int) string {
 	var result strings.Builder
 	visible := 0
@@ -234,7 +262,6 @@ func ansiTruncate(s string, n int) string {
 		result.WriteRune(r)
 		visible++
 	}
-	// Pad if background was shorter than needed
 	for visible < n {
 		result.WriteByte(' ')
 		visible++
@@ -244,13 +271,15 @@ func ansiTruncate(s string, n int) string {
 
 func (m Model) renderShortHelp() string {
 	bindings := m.keys.ShortHelp()
+	bracket := lipgloss.NewStyle().Foreground(Muted)
 	var parts []string
 	for _, b := range bindings {
-		k := HelpKeyStyle.Render(b.Help().Key)
+		k := bracket.Render("[") + HelpKeyStyle.Render(b.Help().Key) + bracket.Render("]")
 		d := HelpDescStyle.Render(b.Help().Desc)
 		parts = append(parts, k+" "+d)
 	}
-	sep := HelpSepStyle.Render(" · ")
-	return lipgloss.NewStyle().Foreground(Subtle).MarginLeft(2).Render(
+	sep := HelpSepStyle.Render("  ")
+	return lipgloss.NewStyle().MarginLeft(2).Render(
 		strings.Join(parts, sep))
 }
+

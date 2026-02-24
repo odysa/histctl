@@ -1,6 +1,9 @@
 package tui
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
@@ -20,7 +23,6 @@ const (
 	stateConfirmDelete
 )
 
-// Messages
 type historyLoadedMsg struct {
 	entries []browser.HistoryEntry
 	err     error
@@ -69,7 +71,7 @@ func NewModel(browsers []browser.Browser) Model {
 	si.CharLimit = 200
 
 	sp := spinner.New()
-	sp.Spinner = spinner.Dot
+	sp.Spinner = spinner.MiniDot
 	sp.Style = lipgloss.NewStyle().Foreground(Accent)
 
 	names := []string{"all"}
@@ -77,29 +79,24 @@ func NewModel(browsers []browser.Browser) Model {
 		names = append(names, b.Name())
 	}
 
-	columns := []table.Column{
-		{Title: " ", Width: 3},
-		{Title: "URL", Width: 50},
-		{Title: "Title", Width: 30},
-		{Title: "Time", Width: 19},
-		{Title: "Browser", Width: 8},
-	}
 	t := table.New(
-		table.WithColumns(columns),
 		table.WithFocused(true),
 		table.WithHeight(20),
 	)
 	s := table.DefaultStyles()
 	s.Header = s.Header.
 		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("240")).
+		BorderForeground(Muted).
 		BorderBottom(true).
 		Bold(true).
-		Foreground(Accent)
+		Foreground(lipgloss.Color("#FAFAFA")).
+		Background(DimBg)
 	s.Selected = s.Selected.
 		Foreground(lipgloss.Color("#FAFAFA")).
-		Background(lipgloss.Color("57")).
+		Background(Accent).
 		Bold(false)
+	s.Cell = s.Cell.
+		Foreground(lipgloss.Color("#C0CAF5"))
 	t.SetStyles(s)
 
 	return Model{
@@ -146,17 +143,16 @@ func (m *Model) applyFilters() {
 func (m *Model) updateTableRows() {
 	rows := make([]table.Row, len(m.filteredEntries))
 	for i, e := range m.filteredEntries {
-		check := "  "
+		urlW := m.urlWidth()
+		url := truncate(e.URL, urlW)
 		if m.selected[i] {
-			check = "✓ "
+			url = "> " + truncate(e.URL, urlW-2)
 		}
-		url := truncate(e.URL, m.urlWidth())
 		title := truncate(e.Title, 30)
 		rows[i] = table.Row{
-			check,
 			url,
 			title,
-			e.VisitTime.Local().Format("2006-01-02 15:04"),
+			relativeTime(e.VisitTime),
 			e.Browser,
 		}
 	}
@@ -164,30 +160,30 @@ func (m *Model) updateTableRows() {
 }
 
 func (m *Model) resizeTable() {
-	h := m.height - 10
+	h := m.height - 12
 	if h < 5 {
 		h = 5
 	}
 	m.table.SetHeight(h)
-
-	urlW := m.urlWidth()
-	columns := []table.Column{
-		{Title: " ", Width: 3},
-		{Title: "URL", Width: urlW},
-		{Title: "Title", Width: 30},
-		{Title: "Time", Width: 16},
-		{Title: "Browser", Width: 8},
-	}
-	m.table.SetColumns(columns)
+	m.table.SetColumns(m.columns())
 	m.updateTableRows()
 }
 
 func (m *Model) urlWidth() int {
-	w := m.width - 3 - 30 - 16 - 8 - 10
+	w := m.width - 30 - 12 - 8 - 10
 	if w < 20 {
 		w = 20
 	}
 	return w
+}
+
+func (m *Model) columns() []table.Column {
+	return []table.Column{
+		{Title: "URL", Width: m.urlWidth()},
+		{Title: "Title", Width: 30},
+		{Title: "Time", Width: 12},
+		{Title: "Browser", Width: 8},
+	}
 }
 
 func truncate(s string, maxLen int) string {
@@ -198,6 +194,44 @@ func truncate(s string, maxLen int) string {
 		return s[:maxLen]
 	}
 	return s[:maxLen-1] + "…"
+}
+
+func relativeTime(t time.Time) string {
+	now := time.Now()
+	d := now.Sub(t)
+	switch {
+	case d < time.Minute:
+		return "just now"
+	case d < time.Hour:
+		return fmt.Sprintf("%dm ago", int(d.Minutes()))
+	case d < 24*time.Hour:
+		return fmt.Sprintf("%dh ago", int(d.Hours()))
+	case d < 48*time.Hour:
+		return "yesterday"
+	case d < 7*24*time.Hour:
+		return fmt.Sprintf("%dd ago", int(d.Hours()/24))
+	case t.Year() == now.Year():
+		return t.Local().Format("Jan 02")
+	default:
+		return t.Local().Format("Jan 2006")
+	}
+}
+
+func (m Model) browserCount(name string) int {
+	source := m.allEntries
+	if m.searchEntries != nil {
+		source = m.searchEntries
+	}
+	if name == "all" {
+		return len(source)
+	}
+	count := 0
+	for _, e := range source {
+		if e.Browser == name {
+			count++
+		}
+	}
+	return count
 }
 
 func Run(browsers []browser.Browser) error {
