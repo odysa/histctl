@@ -1,5 +1,7 @@
 # histctl
 
+![demo](demo/tui.gif)
+
 A terminal tool to search, browse, and delete browser history across Chrome, Edge, Firefox, and Safari. Comes with an interactive TUI and a scriptable CLI.
 
 Supports macOS, Linux, and Windows. Safari is macOS-only.
