@@ -9,6 +9,8 @@ import (
 	"regexp"
 )
 
+// chromeDBSubPath and chromeProcessName are defined in chrome_{darwin,linux,windows}.go
+
 type Chrome struct {
 	name        string
 	processName string
@@ -19,8 +21,8 @@ type Chrome struct {
 func NewChrome(dbOverride string) *Chrome {
 	return &Chrome{
 		name:        "chrome",
-		processName: "Google Chrome",
-		dbSubPath:   filepath.Join("Library", "Application Support", "Google", "Chrome", "Default", "History"),
+		processName: chromeProcessName,
+		dbSubPath:   chromeDBSubPath,
 		dbOverride:  dbOverride,
 	}
 }
