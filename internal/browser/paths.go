@@ -5,9 +5,8 @@ import (
 	"runtime"
 )
 
-var knownBrowsers = []string{"chrome", "edge", "firefox"}
-
 var (
+	knownBrowsers      []string
 	chromeDBSubPath    string
 	chromeProcessName  string
 	edgeDBSubPath      string
@@ -19,6 +18,8 @@ var (
 func init() {
 	switch runtime.GOOS {
 	case "darwin":
+		knownBrowsers = []string{"safari", "chrome", "edge", "firefox"}
+		constructors["safari"] = func() Browser { return NewSafari("") }
 		chromeDBSubPath = filepath.Join("Library", "Application Support", "Google", "Chrome", "Default", "History")
 		edgeDBSubPath = filepath.Join("Library", "Application Support", "Microsoft Edge", "Default", "History")
 		firefoxProfileBase = filepath.Join("Library", "Application Support", "Firefox", "Profiles")
@@ -26,6 +27,7 @@ func init() {
 		edgeProcessName = "Microsoft Edge"
 		firefoxProcessName = "firefox"
 	case "windows":
+		knownBrowsers = []string{"chrome", "edge", "firefox"}
 		chromeDBSubPath = filepath.Join("AppData", "Local", "Google", "Chrome", "User Data", "Default", "History")
 		edgeDBSubPath = filepath.Join("AppData", "Local", "Microsoft", "Edge", "User Data", "Default", "History")
 		firefoxProfileBase = filepath.Join("AppData", "Roaming", "Mozilla", "Firefox", "Profiles")
@@ -33,6 +35,7 @@ func init() {
 		edgeProcessName = "msedge.exe"
 		firefoxProcessName = "firefox.exe"
 	default: // linux
+		knownBrowsers = []string{"chrome", "edge", "firefox"}
 		chromeDBSubPath = filepath.Join(".config", "google-chrome", "Default", "History")
 		edgeDBSubPath = filepath.Join(".config", "microsoft-edge", "Default", "History")
 		firefoxProfileBase = ".mozilla/firefox"
