@@ -1,5 +1,7 @@
 # histctl
 
+![demo](demo/tui.gif)
+
 A terminal tool to search, browse, and delete browser history across Chrome, Edge, Firefox, and Safari. Comes with an interactive TUI and a scriptable CLI.
 
 Supports macOS, Linux, and Windows. Safari is macOS-only.
@@ -8,10 +10,8 @@ Supports macOS, Linux, and Windows. Safari is macOS-only.
 
 ### curl (macOS / Linux)
 
-```
-curl -fsSL "https://github.com/odysa/histctl/releases/latest/download/histctl-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | sed 's/x86_64/amd64/' | sed 's/aarch64/arm64/')" -o histctl
-chmod +x histctl
-sudo mv histctl /usr/local/bin/
+```sh
+curl -fsSL https://raw.githubusercontent.com/odysa/histctl/main/install.sh | sh
 ```
 
 ### PowerShell (Windows)
