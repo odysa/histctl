@@ -4,6 +4,8 @@ package browser
 
 import "path/filepath"
 
+var knownBrowsers = []string{"safari", "chrome", "edge", "firefox"}
+
 var chromeDBSubPath = filepath.Join("Library", "Application Support", "Google", "Chrome", "Default", "History")
 var edgeDBSubPath = filepath.Join("Library", "Application Support", "Microsoft Edge", "Default", "History")
 var firefoxProfileBase = filepath.Join("Library", "Application Support", "Firefox", "Profiles")
@@ -13,3 +15,7 @@ const (
 	edgeProcessName    = "Microsoft Edge"
 	firefoxProcessName = "firefox"
 )
+
+func init() {
+	constructors["safari"] = func() Browser { return NewSafari("") }
+}

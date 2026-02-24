@@ -4,6 +4,8 @@ package browser
 
 import "path/filepath"
 
+var knownBrowsers = []string{"chrome", "edge", "firefox"}
+
 var chromeDBSubPath = filepath.Join(".config", "google-chrome", "Default", "History")
 var edgeDBSubPath = filepath.Join(".config", "microsoft-edge", "Default", "History")
 var firefoxProfileBase = ".mozilla/firefox"
