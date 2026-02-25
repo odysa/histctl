@@ -2,7 +2,7 @@
 set -e
 
 REPO="odysa/histctl"
-INSTALL_DIR="/usr/local/bin"
+INSTALL_DIR="${HISTCTL_INSTALL_DIR:-$HOME/.local/bin}"
 
 OS=$(uname -s | tr A-Z a-z)
 ARCH=$(uname -m)
@@ -17,11 +17,14 @@ echo "Downloading histctl for ${OS}/${ARCH}..."
 curl -fsSL "$URL" -o histctl
 chmod +x histctl
 
-if [ -w "$INSTALL_DIR" ]; then
-  mv histctl "$INSTALL_DIR/histctl"
-else
-  echo "Installing to ${INSTALL_DIR} (requires sudo)..."
-  sudo mv histctl "$INSTALL_DIR/histctl"
-fi
+mkdir -p "$INSTALL_DIR"
+mv histctl "$INSTALL_DIR/histctl"
 
 echo "histctl installed to ${INSTALL_DIR}/histctl"
+
+# Check if INSTALL_DIR is in PATH
+case ":$PATH:" in
+  *":$INSTALL_DIR:"*) ;;
+  *) echo "NOTE: $INSTALL_DIR is not in your PATH. Add it with:"
+     echo "  export PATH=\"$INSTALL_DIR:\$PATH\"" ;;
+esac
