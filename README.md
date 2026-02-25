@@ -8,6 +8,12 @@ Supports macOS, Linux, and Windows. Safari is macOS-only.
 
 ## Install
 
+### Homebrew (macOS / Linux)
+
+```sh
+brew install odysa/tap/histctl
+```
+
 ### curl (macOS / Linux)
 
 ```sh
@@ -17,8 +23,7 @@ curl -fsSL https://raw.githubusercontent.com/odysa/histctl/main/install.sh | sh
 ### PowerShell (Windows)
 
 ```powershell
-Invoke-WebRequest -Uri "https://github.com/odysa/histctl/releases/latest/download/histctl-windows-amd64.exe" -OutFile histctl.exe
-Move-Item histctl.exe "$env:LOCALAPPDATA\Microsoft\WindowsApps\histctl.exe"
+irm https://raw.githubusercontent.com/odysa/histctl/main/install.ps1 | iex
 ```
 
 ### Go
